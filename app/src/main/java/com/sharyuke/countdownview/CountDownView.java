@@ -222,6 +222,11 @@ public class CountDownView extends LinearLayout {
       }
       addView(textView);
     }
+
+    TextView textView = new TextView(getContext());
+    textView.setText(splitModel.getSplitStr());
+    addView(textView);
+
     if (splitModel.getSplitPic() != 0) {
       ImageView imageView = new ImageView(getContext());
       imageView.setImageResource(splitModel.getSplitPic());
