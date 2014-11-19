@@ -194,6 +194,10 @@ public class CountDownView extends LinearLayout {
             if (mSplitModels.get(i).getSplitBackground() != 0) {
               textView.setBackgroundResource(mSplitModels.get(i).getSplitBackground());
             }
+
+            if (mSplitModels.get(i).getTextColor() != 0) {
+              textView.setTextColor(mSplitModels.get(i).getTextColor());
+            }
             textView.setGravity(Gravity.CENTER);
             textView.setText(timeStr.append(mSplitModels.get(i).getSplitStr()).toString());
             addView(textView);
@@ -217,14 +221,21 @@ public class CountDownView extends LinearLayout {
     for (int i = 0; i < time.length(); i++) {
       TextView textView = new TextView(getContext());
       textView.setText(String.valueOf(time.charAt(i)));
-      if (mSplitModels.get(i).getSplitBackground() != 0) {
+      if (splitModel.getSplitBackground() != 0) {
         textView.setBackgroundResource(splitModel.getSplitBackground());
+      }
+
+      if (splitModel.getTextColor() != 0) {
+        textView.setTextColor(splitModel.getTextColor());
       }
       addView(textView);
     }
 
     TextView textView = new TextView(getContext());
     textView.setText(splitModel.getSplitStr());
+    if (splitModel.getTextColor() != 0) {
+      textView.setTextColor(splitModel.getTextColor());
+    }
     addView(textView);
 
     if (splitModel.getSplitPic() != 0) {
