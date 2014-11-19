@@ -6,6 +6,8 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Created by yuke on 11/17/14.
@@ -25,6 +27,9 @@ public class CountDownView extends TextView {
 
   private CountOver mCountOver;
 
+  private ArrayList<SplitModel> mSplitModels = new ArrayList<SplitModel>();
+  private SplitModelComparator splitModelComparator;
+
   private int mCountTime = 0;
   private TimeHandler mTimeHandler;
   private String mDay, mHour, mMinute, mSecond;
@@ -35,7 +40,23 @@ public class CountDownView extends TextView {
    */
   public CountDownView(Context context, AttributeSet attrs) {
     super(context, attrs);
+    splitModelComparator = new SplitModelComparator();
     mTimeHandler = new TimeHandler(this);
+  }
+
+  public CountDownView setNormalFormat() {
+    addSplitModel(new SplitModel.Builder().setSplitNum(86400).setSplitStr("天").build());
+    addSplitModel(new SplitModel.Builder().setSplitNum(3600).setSplitStr("时").build());
+    addSplitModel(new SplitModel.Builder().setSplitNum(60).setSplitStr("分").build());
+    addSplitModel(new SplitModel.Builder().setSplitNum(1).setSplitStr("秒").build());
+    return this;
+  }
+
+  public void addSplitModel(SplitModel splitModel) {
+    if (splitModel != null) {
+      mSplitModels.add(splitModel);
+    }
+    Collections.sort(mSplitModels, splitModelComparator);
   }
 
   /**
@@ -200,28 +221,37 @@ public class CountDownView extends TextView {
 
       int time = tv.getTime();
       StringBuilder timeStr = new StringBuilder();
-      if (mDay != null) {
-        timeStr.append(time / DAY).append(mDay).append(" ");
-        time = time % DAY;
+
+      for (int i = 0; i < mSplitModels.size(); i++) {
+        int splitNum = mSplitModels.get(i).getSplitNum();
+        if (splitNum > 0) {
+          timeStr.append(time / splitNum).append(mSplitModels.get(i).getSplitStr()).append(" ");
+          time = time % splitNum;
+        }
       }
 
-      if (mHour != null) {
-        int t = time / HOUR;
-        timeStr.append(mDay == null ? t : formatTime(t)).append(mHour).append(" ");
-        time = time % HOUR;
-      }
-
-      if (mMinute != null) {
-        int t = time / MINUTE;
-        timeStr.append(mHour == null ? t : formatTime(t)).append(mMinute).append(" ");
-        time = time % MINUTE;
-      }
-
-      if (mSecond != null) {
-        timeStr.append(mMinute == null ? time : formatTime(time)).append(mSecond);
-      } else {
-        timeStr.append(time);
-      }
+      //if (mDay != null) {
+      //  timeStr.append(time / DAY).append(mDay).append(" ");
+      //  time = time % DAY;
+      //}
+      //
+      //if (mHour != null) {
+      //  int t = time / HOUR;
+      //  timeStr.append(mDay == null ? t : formatTime(t)).append(mHour).append(" ");
+      //  time = time % HOUR;
+      //}
+      //
+      //if (mMinute != null) {
+      //  int t = time / MINUTE;
+      //  timeStr.append(mHour == null ? t : formatTime(t)).append(mMinute).append(" ");
+      //  time = time % MINUTE;
+      //}
+      //
+      //if (mSecond != null) {
+      //  timeStr.append(mMinute == null ? time : formatTime(time)).append(mSecond);
+      //} else {
+      //  timeStr.append(time);
+      //}
 
       tv.setText(timeStr.toString());
     }
