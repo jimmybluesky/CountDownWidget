@@ -5,6 +5,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +16,7 @@ import java.util.Collections;
  * @author Created by yuke on 11/17/14.
  * @version CountDownView yuke 0.0.6
  */
-public class CountDownView extends TextView {
+public class CountDownView extends LinearLayout {
   private static final String TAG = "CountDownView";
   private static final int DAY = 86400;
   private static final int HOUR = 3600;
@@ -32,7 +35,6 @@ public class CountDownView extends TextView {
 
   private int mCountTime = 0;
   private TimeHandler mTimeHandler;
-  private String mDay, mHour, mMinute, mSecond;
   private boolean isFormat = true;
 
   /**
@@ -46,9 +48,9 @@ public class CountDownView extends TextView {
 
   public CountDownView setNormalFormat() {
     addSplitModel(new SplitModel.Builder().setSplitNum(86400).setSplitStr("天").build());
+    addSplitModel(new SplitModel.Builder().setSplitNum(1).setSplitStr("秒").build());
     addSplitModel(new SplitModel.Builder().setSplitNum(3600).setSplitStr("时").build());
     addSplitModel(new SplitModel.Builder().setSplitNum(60).setSplitStr("分").build());
-    addSplitModel(new SplitModel.Builder().setSplitNum(1).setSplitStr("秒").build());
     return this;
   }
 
@@ -66,49 +68,6 @@ public class CountDownView extends TextView {
    */
   public void setCountTime(String time) {
     this.mCountTime = str2int(time);
-  }
-
-  /**
-   * 设置显示单位
-   *
-   * @param day 　天的单位　{@link CountDownView#setDay(String)}
-   * @param hour 小时的单位　{@link CountDownView#setHour(String)}
-   * @param minute 分的单位　{@link CountDownView#setMinute(String)}
-   * @param second 秒的单位　{@link CountDownView#setSecond(String)}
-   */
-  public void setUnits(String day, String hour, String minute, String second) {
-    setDay(day);
-    setHour(hour);
-    setMinute(minute);
-    setSecond(second);
-  }
-
-  /**
-   * {@link CountDownView#setUnits(String, String, String, String)}
-   */
-  public void setDay(String day) {
-    this.mDay = day;
-  }
-
-  /**
-   * {@link CountDownView#setUnits(String, String, String, String)}
-   */
-  public void setHour(String hour) {
-    this.mHour = hour;
-  }
-
-  /**
-   * {@link CountDownView#setUnits(String, String, String, String)}
-   */
-  public void setMinute(String minute) {
-    this.mMinute = minute;
-  }
-
-  /**
-   * {@link CountDownView#setUnits(String, String, String, String)}
-   */
-  public void setSecond(String second) {
-    this.mSecond = second;
   }
 
   private int getTime() {
@@ -185,7 +144,7 @@ public class CountDownView extends TextView {
    */
   public void clear() {
     stopCount();
-    this.setText("");
+    //todo
   }
 
   /**
@@ -220,40 +179,53 @@ public class CountDownView extends TextView {
       sendEmptyMessageDelayed(STATUS_COUNTING, SECOND);
 
       int time = tv.getTime();
-      StringBuilder timeStr = new StringBuilder();
 
+      removeAllViews();
       for (int i = 0; i < mSplitModels.size(); i++) {
+        StringBuilder timeStr = new StringBuilder();
         int splitNum = mSplitModels.get(i).getSplitNum();
         if (splitNum > 0) {
-          timeStr.append(time / splitNum).append(mSplitModels.get(i).getSplitStr()).append(" ");
+          timeStr.append(formatTime(time / splitNum, i == 0 ? 0
+              : mSplitModels.get(i - 1).getSplitNum() / (i == mSplitModels.size() - 1 ? 1
+                  : mSplitModels.get(i).getSplitNum())));
+
+          if (!isFormat) {
+            TextView textView = new TextView(getContext());
+            if (mSplitModels.get(i).getSplitBackground() != 0) {
+              textView.setBackgroundResource(mSplitModels.get(i).getSplitBackground());
+            }
+            textView.setGravity(Gravity.CENTER);
+            textView.setText(timeStr.append(mSplitModels.get(i).getSplitStr()).toString());
+            addView(textView);
+
+            if (mSplitModels.get(i).getSplitPic() != 0) {
+              ImageView imageView = new ImageView(getContext());
+              imageView.setImageResource(mSplitModels.get(i).getSplitPic());
+              addView(imageView);
+            }
+          } else {
+            drawSplit(timeStr.toString(), mSplitModels.get(i));
+          }
           time = time % splitNum;
         }
       }
+    }
+  }
 
-      //if (mDay != null) {
-      //  timeStr.append(time / DAY).append(mDay).append(" ");
-      //  time = time % DAY;
-      //}
-      //
-      //if (mHour != null) {
-      //  int t = time / HOUR;
-      //  timeStr.append(mDay == null ? t : formatTime(t)).append(mHour).append(" ");
-      //  time = time % HOUR;
-      //}
-      //
-      //if (mMinute != null) {
-      //  int t = time / MINUTE;
-      //  timeStr.append(mHour == null ? t : formatTime(t)).append(mMinute).append(" ");
-      //  time = time % MINUTE;
-      //}
-      //
-      //if (mSecond != null) {
-      //  timeStr.append(mMinute == null ? time : formatTime(time)).append(mSecond);
-      //} else {
-      //  timeStr.append(time);
-      //}
-
-      tv.setText(timeStr.toString());
+  private void drawSplit(String time, SplitModel splitModel) {
+    if (time == null) return;
+    for (int i = 0; i < time.length(); i++) {
+      TextView textView = new TextView(getContext());
+      textView.setText(String.valueOf(time.charAt(i)));
+      if (mSplitModels.get(i).getSplitBackground() != 0) {
+        textView.setBackgroundResource(splitModel.getSplitBackground());
+      }
+      addView(textView);
+    }
+    if (splitModel.getSplitPic() != 0) {
+      ImageView imageView = new ImageView(getContext());
+      imageView.setImageResource(splitModel.getSplitPic());
+      addView(imageView);
     }
   }
 
@@ -267,7 +239,23 @@ public class CountDownView extends TextView {
     void onCountOver();
   }
 
-  private String formatTime(int time) {
-    return !isFormat ? "" + time : (time > 9 ? "" + time : "0" + time);
+  private String formatTime(int time, int maxLong) {
+    if (maxLong == 0) {
+      return String.valueOf(time);
+    }
+    StringBuilder fill = new StringBuilder();
+    for (int i = 0; i < getPlaces(maxLong) - getPlaces(time); i++) {
+      fill.append("0");
+    }
+    return !isFormat ? "" + time : (time > 9 ? "" + time : fill.toString() + time);
+  }
+
+  private int getPlaces(int count) {
+    int place = 1;
+    while (count / 10 >= 1) {
+      place++;
+      count /= 10;
+    }
+    return place;
   }
 }

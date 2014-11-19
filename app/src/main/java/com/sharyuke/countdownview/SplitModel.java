@@ -22,7 +22,7 @@ public class SplitModel {
   }
 
   public String getSplitStr() {
-    return splitStr;
+    return splitStr == null ? "" : splitStr;
   }
 
   public int getSplitBackground() {
