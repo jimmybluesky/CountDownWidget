@@ -1,5 +1,6 @@
 package com.sharyuke.countdowndemo;
 
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -33,12 +34,36 @@ public class MainActivity extends ActionBarActivity {
     //mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(1).setSplitStr("秒").build());
     //两种效果一样的 setNormalFormat() 与上面的设置
 
-    mcdv.setNormalFormat().setOnCountOverListener(new CountDownView.CountOver() {
+    mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(86400)
+        .setSplitStr("天")
+        .setTextColor(Color.WHITE)
+        .setIsSplitText(true)
+        .build());
+    mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(1)
+        .setSplitStr("秒")
+        .setTextColor(Color.WHITE)
+        .setIsSplitText(false)
+        .setIsSplitStr(false)
+        .build());
+    mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(3600)
+        .setSplitStr("时")
+        .setTextColor(Color.WHITE)
+        .setIsSplitText(false)
+        .setIsSplitStr(true)
+        .build());
+    mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(60)
+        .setSplitStr("分")
+        .setTextColor(Color.WHITE)
+        .setIsSplitText(true)
+        .build());
+    mcdv.setCountTime(1000);
+    mcdv.setOnCountOverListener(new CountDownView.CountOver() {
       @Override
       public void onCountOver() {
         Toast.makeText(MainActivity.this, "回调了！！！", Toast.LENGTH_LONG).show();
       }
     });
+    mcdv.startCount();
   }
 
   public void click(View v) {

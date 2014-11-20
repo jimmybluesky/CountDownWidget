@@ -1,5 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:sharyuke="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -9,14 +10,18 @@
     tools:context=".MainActivity">
 
   <com.sharyuke.countdownview.CountDownView
-      android:layout_marginTop="50dp"
       android:id="@+id/test"
-      android:gravity="center"
+      sharyuke:charBackground="@drawable/count_down_time_bg"
+      sharyuke:charWidth="20dp"
+      sharyuke:charHeight="30dp"
+      sharyuke:textGravity="center"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"/>
+      android:layout_height="48dip"
+      />
 
   <EditText
       android:id="@+id/count"
+      android:gravity="center_horizontal"
       android:layout_marginTop="100dp"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"/>

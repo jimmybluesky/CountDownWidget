@@ -10,14 +10,32 @@ public class SplitModel {
   private int splitBackground;
   private int splitPic;
   private int textColor;
+  private boolean isSplitStr;
+  private boolean isFormat;
+  private boolean isSplitText;
 
-  public SplitModel(int splitNum, String splitStr, int splitBackground, int splitPic,
-      int textColor) {
+  public SplitModel(int splitNum, String splitStr, int splitBackground, int splitPic, int textColor,
+      boolean isSplitStr, boolean isFormat, boolean isSplitText) {
     this.splitNum = splitNum;
     this.splitStr = splitStr;
     this.splitBackground = splitBackground;
     this.splitPic = splitPic;
     this.textColor = textColor;
+    this.isSplitStr = isSplitStr;
+    this.isFormat = isFormat;
+    this.isSplitText = isSplitText;
+  }
+
+  public boolean isSplitStr() {
+    return isSplitStr;
+  }
+
+  public boolean isSplitText() {
+    return isSplitText;
+  }
+
+  public boolean isFormat() {
+    return isFormat;
   }
 
   public int getTextColor() {
@@ -46,6 +64,26 @@ public class SplitModel {
     private int splitBackground;
     private int splitPic;
     private int textColor;
+    private boolean isSplitStr;
+    private boolean isFormat;
+    private boolean isSplitText;
+
+    public Builder setIsSplitStr(boolean isSplitStr) {
+      this.isSplitStr = isSplitStr;
+      return this;
+    }
+
+    public Builder setIsSplitText(boolean isSplitText) {
+      this.isSplitText = isSplitText;
+      this.isFormat = isSplitText;
+      this.isSplitStr = isSplitText;
+      return this;
+    }
+
+    public Builder setIsFormat(boolean isFormat) {
+      this.isFormat = isFormat;
+      return this;
+    }
 
     public Builder setSplitNum(int splitNum) {
       this.splitNum = splitNum;
@@ -73,7 +111,8 @@ public class SplitModel {
     }
 
     public SplitModel build() {
-      return new SplitModel(splitNum, splitStr, splitBackground, splitPic, textColor);
+      return new SplitModel(splitNum, splitStr, splitBackground, splitPic, textColor, isSplitStr,
+          isFormat, isSplitText);
     }
   }
 }

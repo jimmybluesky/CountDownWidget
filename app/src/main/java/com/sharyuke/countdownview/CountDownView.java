@@ -1,6 +1,7 @@
 package com.sharyuke.countdownview;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -35,7 +36,21 @@ public class CountDownView extends LinearLayout {
 
   private int mCountTime = 0;
   private TimeHandler mTimeHandler;
-  private boolean isFormat = true;
+
+  private int leftPadding = -1;
+  private int topPadding = -1;
+  private int rightPadding = -1;
+  private int bottomPadding = -1;
+  private int padding = -1;
+  private int width = -1;
+  private int height = -1;
+  private int textBackground = -1;
+  private int splitBackground = -1;
+  private int gravity;
+
+  private boolean isTextBackgroundDefault = true;
+  private boolean isSplitBackgroundDefault = true;
+  private boolean ispPaddingDefault = true;
 
   /**
    * 构造函数　一般用于xml布局
@@ -44,21 +59,92 @@ public class CountDownView extends LinearLayout {
     super(context, attrs);
     splitModelComparator = new SplitModelComparator();
     mTimeHandler = new TimeHandler(this);
+
+    final TypedArray typeArray = context.obtainStyledAttributes(attrs, R.styleable.MyText);
+    final int N = typeArray.getIndexCount();
+    for (int i = 0; i < N; i++) {
+      int attr = typeArray.getIndex(i);
+      if (attr == R.styleable.MyText_charPadding) {
+        padding = typeArray.getDimensionPixelSize(attr, -1);
+        ispPaddingDefault = false;
+      } else if (attr == R.styleable.MyText_charPaddingLeft) {
+        leftPadding = typeArray.getDimensionPixelSize(attr, -1);
+      } else if (attr == R.styleable.MyText_charPaddingTop) {
+        topPadding = typeArray.getDimensionPixelSize(attr, -1);
+      } else if (attr == R.styleable.MyText_charPaddingRight) {
+        rightPadding = typeArray.getDimensionPixelSize(attr, -1);
+      } else if (attr == R.styleable.MyText_charPaddingButton) {
+        bottomPadding = typeArray.getDimensionPixelSize(attr, -1);
+      } else if (attr == R.styleable.MyText_charWidth) {
+        width = typeArray.getDimensionPixelSize(attr, -1);
+      } else if (attr == R.styleable.MyText_charHeight) {
+        height = typeArray.getDimensionPixelSize(attr, -1);
+      } else if (attr == R.styleable.MyText_charBackground) {
+        textBackground = typeArray.getResourceId(attr, -1);
+        isTextBackgroundDefault = false;
+      } else if (attr == R.styleable.MyText_splitBackground) {
+        splitBackground = typeArray.getResourceId(attr, -1);
+        isSplitBackgroundDefault = false;
+      } else if (attr == R.styleable.MyText_textGravity) {
+        gravity = typeArray.getInt(attr, Gravity.LEFT | Gravity.TOP);
+      }
+    }
+    typeArray.recycle();
+  }
+
+  private TextView getTextView(SplitModel splitModel) {
+    TextView textView = new TextView(getContext());
+    textView.setHeight(height);
+    textView.setWidth(width);
+    textView.setGravity(gravity);
+    textView.setPadding(ispPaddingDefault ? padding : leftPadding,
+        ispPaddingDefault ? padding : topPadding, ispPaddingDefault ? padding : rightPadding,
+        ispPaddingDefault ? padding : bottomPadding);
+    if (!isTextBackgroundDefault) {
+      textView.setBackgroundResource(textBackground);
+    }
+
+    if (splitModel.getSplitBackground() != 0) {
+      textView.setBackgroundResource(splitModel.getSplitBackground());
+    }
+
+    if (splitModel.getTextColor() != 0) {
+      textView.setTextColor(splitModel.getTextColor());
+    }
+
+    return textView;
+  }
+
+  private ImageView getImageView() {
+    ImageView imageView = new ImageView(getContext());
+    if (!isTextBackgroundDefault) {
+      imageView.setBackgroundResource(splitBackground);
+    }
+    return imageView;
   }
 
   public CountDownView setNormalFormat() {
     addSplitModel(new SplitModel.Builder().setSplitNum(86400).setSplitStr("天").build());
-    addSplitModel(new SplitModel.Builder().setSplitNum(1).setSplitStr("秒").build());
-    addSplitModel(new SplitModel.Builder().setSplitNum(3600).setSplitStr("时").build());
-    addSplitModel(new SplitModel.Builder().setSplitNum(60).setSplitStr("分").build());
+    addSplitModel(
+        new SplitModel.Builder().setSplitNum(1).setSplitStr("秒").setIsFormat(true).build());
+    addSplitModel(
+        new SplitModel.Builder().setSplitNum(3600).setSplitStr("时").setIsFormat(true).build());
+    addSplitModel(
+        new SplitModel.Builder().setSplitNum(60).setSplitStr("分").setIsFormat(true).build());
     return this;
   }
 
   public void addSplitModel(SplitModel splitModel) {
-    if (splitModel != null) {
+    if (splitModel != null && mSplitModels != null) {
       mSplitModels.add(splitModel);
     }
     Collections.sort(mSplitModels, splitModelComparator);
+  }
+
+  public void clearSplitModel() {
+    if (mSplitModels != null) {
+      mSplitModels.clear();
+    }
   }
 
   /**
@@ -101,15 +187,6 @@ public class CountDownView extends LinearLayout {
    */
   public void setCountTimeByRes(int res) {
     setCountTime(getContext().getResources().getString(res));
-  }
-
-  /**
-   * 是否格式化时间显示，例如９秒显示为09秒，
-   *
-   * @param isFormat 　true 需要
-   */
-  public void setFormat(boolean isFormat) {
-    this.isFormat = isFormat;
   }
 
   private void checkIsValid(String time) {
@@ -187,23 +264,24 @@ public class CountDownView extends LinearLayout {
         if (splitNum > 0) {
           timeStr.append(formatTime(time / splitNum, i == 0 ? 0
               : mSplitModels.get(i - 1).getSplitNum() / (i == mSplitModels.size() - 1 ? 1
-                  : mSplitModels.get(i).getSplitNum())));
+                  : mSplitModels.get(i).getSplitNum()), mSplitModels.get(i)));
 
-          if (!isFormat) {
-            TextView textView = new TextView(getContext());
-            if (mSplitModels.get(i).getSplitBackground() != 0) {
-              textView.setBackgroundResource(mSplitModels.get(i).getSplitBackground());
-            }
+          if (!mSplitModels.get(i).isFormat()) {
+            TextView textView = getTextView(mSplitModels.get(i));
+            TextView textViewStr = getTextView(mSplitModels.get(i));
 
-            if (mSplitModels.get(i).getTextColor() != 0) {
-              textView.setTextColor(mSplitModels.get(i).getTextColor());
+            if (mSplitModels.get(i).isSplitStr()) {
+              textView.setText(timeStr.toString());
+              addView(textView);
+              textViewStr.setText(mSplitModels.get(i).getSplitStr());
+              addView(textViewStr);
+            } else {
+              textView.setText(timeStr.append(mSplitModels.get(i).getSplitStr()).toString());
+              addView(textView);
             }
-            textView.setGravity(Gravity.CENTER);
-            textView.setText(timeStr.append(mSplitModels.get(i).getSplitStr()).toString());
-            addView(textView);
 
             if (mSplitModels.get(i).getSplitPic() != 0) {
-              ImageView imageView = new ImageView(getContext());
+              ImageView imageView = getImageView();
               imageView.setImageResource(mSplitModels.get(i).getSplitPic());
               addView(imageView);
             }
@@ -218,25 +296,30 @@ public class CountDownView extends LinearLayout {
 
   private void drawSplit(String time, SplitModel splitModel) {
     if (time == null) return;
-    for (int i = 0; i < time.length(); i++) {
-      TextView textView = new TextView(getContext());
-      textView.setText(String.valueOf(time.charAt(i)));
-      if (splitModel.getSplitBackground() != 0) {
-        textView.setBackgroundResource(splitModel.getSplitBackground());
+    if (splitModel.isSplitText()) {
+      for (int i = 0; i < time.length(); i++) {
+        TextView textView = getTextView(splitModel);
+        textView.setText(String.valueOf(time.charAt(i)));
+        addView(textView);
       }
+      TextView textViewStr = getTextView(splitModel);
+      textViewStr.setText(splitModel.getSplitStr());
+      addView(textViewStr);
+    } else {
+      TextView textView = getTextView(splitModel);
 
-      if (splitModel.getTextColor() != 0) {
-        textView.setTextColor(splitModel.getTextColor());
+      if (splitModel.isSplitStr()) {
+        TextView textViewStr = getTextView(splitModel);
+
+        textView.setText(time);
+        textViewStr.setText(splitModel.getSplitStr());
+        addView(textView);
+        addView(textViewStr);
+      } else {
+        textView.setText(time + splitModel.getSplitStr());
+        addView(textView);
       }
-      addView(textView);
     }
-
-    TextView textView = new TextView(getContext());
-    textView.setText(splitModel.getSplitStr());
-    if (splitModel.getTextColor() != 0) {
-      textView.setTextColor(splitModel.getTextColor());
-    }
-    addView(textView);
 
     if (splitModel.getSplitPic() != 0) {
       ImageView imageView = new ImageView(getContext());
@@ -255,7 +338,7 @@ public class CountDownView extends LinearLayout {
     void onCountOver();
   }
 
-  private String formatTime(int time, int maxLong) {
+  private String formatTime(int time, int maxLong, SplitModel splitModel) {
     if (maxLong == 0) {
       return String.valueOf(time);
     }
@@ -263,7 +346,7 @@ public class CountDownView extends LinearLayout {
     for (int i = 0; i < getPlaces(maxLong) - getPlaces(time); i++) {
       fill.append("0");
     }
-    return !isFormat ? "" + time : (time > 9 ? "" + time : fill.toString() + time);
+    return !splitModel.isFormat() ? "" + time : (time > 9 ? "" + time : fill.toString() + time);
   }
 
   private int getPlaces(int count) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <declare-styleable name="MyText">
+    <attr name="charPaddingLeft" format="dimension|reference"/>
+    <attr name="charPaddingRight" format="dimension|reference"/>
+    <attr name="charPaddingTop" format="dimension|reference"/>
+    <attr name="charPaddingButton" format="dimension|reference"/>
+    <attr name="charPadding" format="dimension|reference"/>
+    <attr name="textGravity">
+      <!-- Push object to the top of its container, not changing its size. -->
+      <flag name="top" value="0x30"/>
+      <!-- Push object to the bottom of its container, not changing its size. -->
+      <flag name="bottom" value="0x50"/>
+      <!-- Push object to the left of its container, not changing its size. -->
+      <flag name="left" value="0x03"/>
+      <!-- Push object to the right of its container, not changing its size. -->
+      <flag name="right" value="0x05"/>
+      <!-- Place object in the vertical center of its container, not changing its size. -->
+      <flag name="center_vertical" value="0x10"/>
+      <!-- Place object in the horizontal center of its container, not changing its size. -->
+      <flag name="center_horizontal" value="0x01"/>
+      <!-- center-->
+      <flag name="center" value="0x11"/>
+    </attr>
+    <attr name="charWidth" format="dimension|reference"/>
+    <attr name="charHeight" format="dimension|reference"/>
+    <attr name="charBackground" format="reference"/>
+    <attr name="splitBackground" format="reference"/>
+  </declare-styleable>
+</resources>
