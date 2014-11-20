@@ -14,6 +14,7 @@
       sharyuke:charBackground="@drawable/count_down_time_bg"
       sharyuke:charWidth="wrap_content"
       sharyuke:charHeight="40dp"
+      sharyuke:charPadding="10dp"
       sharyuke:textGravity="center"
       android:layout_width="match_parent"
       android:layout_height="48dip"
