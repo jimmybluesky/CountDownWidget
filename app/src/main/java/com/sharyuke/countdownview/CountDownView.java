@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,7 +45,7 @@ public class CountDownView extends LinearLayout {
   private ArrayList<SplitModel> mSplitModels = new ArrayList<SplitModel>();
   private SplitModelComparator splitModelComparator;
 
-  private int mCountTime = 0;
+  private long mCountTime = 0;
   private TimeHandler mTimeHandler;
 
   private int leftPadding = -1;
@@ -57,6 +58,10 @@ public class CountDownView extends LinearLayout {
   private int textBackground = -1;
   private int splitBackground = -1;
   private int gravity;
+  /**
+   * 第一位最长长度
+   */
+  private int maxFirstLength;
 
   private boolean isTextBackgroundDefault = true;
   private boolean isSplitBackgroundDefault = true;
@@ -77,6 +82,7 @@ public class CountDownView extends LinearLayout {
   private final static String FLAG_E = "E";
   private final static String FLAG_F = "F";
   private final static String FLAG_G = "G";
+  private final static String FLAG_H = "H";
 
   /**
    * 构造函数　一般用于xml布局
@@ -123,7 +129,7 @@ public class CountDownView extends LinearLayout {
     typeArray.recycle();
   }
 
-  private void setTextView(SplitModel splitModel, String name, String content) {
+  private void setTextView(SplitModel splitModel, String name, String content, int index) {
     TextView textView = tvs.get(name);
     if (textView == null) {
       textView = new TextView(getContext());
@@ -148,7 +154,7 @@ public class CountDownView extends LinearLayout {
       }
 
       textView.setText(content);
-      addView(textView);
+      addView(textView, index);
     } else {
       textView.setText(content);
     }
@@ -200,10 +206,14 @@ public class CountDownView extends LinearLayout {
    * @param time 到时间总时间
    */
   public void setCountTime(String time) {
-    this.mCountTime = str2int(time);
+    try {
+      this.mCountTime = str2int(time);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
-  private int getTime() {
+  private long getTime() {
     if (mCountTime > 0) {
       return mCountTime--;
     } else {
@@ -303,7 +313,8 @@ public class CountDownView extends LinearLayout {
 
       sendEmptyMessageDelayed(STATUS_COUNTING, SECOND);
 
-      int time = tv.getTime();
+      long time = tv.getTime();
+      int position = 0;
 
       for (int i = 0; i < mSplitModels.size(); i++) {
         StringBuilder timeStr = new StringBuilder();
@@ -316,12 +327,13 @@ public class CountDownView extends LinearLayout {
           if (!mSplitModels.get(i).isFormat()) {
 
             if (mSplitModels.get(i).isSplitStr()) {
-              setTextView(mSplitModels.get(i), FLAG_A + String.valueOf(i), timeStr.toString());
+              setTextView(mSplitModels.get(i), FLAG_A + String.valueOf(i), timeStr.toString(),
+                  position++);
               setTextView(mSplitModels.get(i), FLAG_B + String.valueOf(i),
-                  mSplitModels.get(i).getSplitStr());
+                  mSplitModels.get(i).getSplitStr(), position++);
             } else {
-              setTextView(mSplitModels.get(i), FLAG_A + String.valueOf(i),
-                  timeStr.append(mSplitModels.get(i).getSplitStr()).toString());
+              setTextView(mSplitModels.get(i), FLAG_C + String.valueOf(i),
+                  timeStr.append(mSplitModels.get(i).getSplitStr()).toString(), position++);
             }
 
             if (mSplitModels.get(i).getSplitPic() != 0) {
@@ -331,22 +343,33 @@ public class CountDownView extends LinearLayout {
             }
           } else {
             if (mSplitModels.get(i).isSplitText()) {
+              if (i == 0) {
+                if (maxFirstLength > timeStr.length()) {
+                  for (int j = timeStr.length() - 1; j < maxFirstLength; j++) {
+                    setTextView(mSplitModels.get(i),
+                        FLAG_D + String.valueOf(i) + "-" + String.valueOf(timeStr.length() - j + 1),
+                        "0", position++);
+                  }
+                } else {
+                  maxFirstLength = timeStr.length();
+                }
+              }
               for (int j = 0; j < timeStr.length(); j++) {
                 setTextView(mSplitModels.get(i),
-                    FLAG_C + String.valueOf(i) + "-" + String.valueOf(j),
-                    String.valueOf(timeStr.charAt(j)));
+                    FLAG_D + String.valueOf(i) + "-" + String.valueOf(timeStr.length() - j),
+                    String.valueOf(timeStr.charAt(j)), position++);
               }
-              setTextView(mSplitModels.get(i), FLAG_D + String.valueOf(i),
-                  mSplitModels.get(i).getSplitStr());
+
+              setTextView(mSplitModels.get(i), FLAG_E + String.valueOf(i),
+                  mSplitModels.get(i).getSplitStr(), position++);
+            } else if (mSplitModels.get(i).isSplitStr()) {
+              setTextView(mSplitModels.get(i), FLAG_F + String.valueOf(i),
+                  mSplitModels.get(i).getSplitStr(), position++);
+              setTextView(mSplitModels.get(i), FLAG_G + String.valueOf(i), String.valueOf(time),
+                  position++);
             } else {
-              if (mSplitModels.get(i).isSplitStr()) {
-                setTextView(mSplitModels.get(i), FLAG_F + String.valueOf(i),
-                    mSplitModels.get(i).getSplitStr());
-                setTextView(mSplitModels.get(i), FLAG_E + String.valueOf(i), String.valueOf(time));
-              } else {
-                setTextView(mSplitModels.get(i), FLAG_E + String.valueOf(i),
-                    time + mSplitModels.get(i).getSplitStr());
-              }
+              setTextView(mSplitModels.get(i), FLAG_H + String.valueOf(i),
+                  time + mSplitModels.get(i).getSplitStr(), position++);
             }
 
             if (mSplitModels.get(i).getSplitPic() != 0) {
@@ -371,7 +394,7 @@ public class CountDownView extends LinearLayout {
     void onCountOver();
   }
 
-  private String formatTime(int time, int maxLong, SplitModel splitModel) {
+  private String formatTime(long time, int maxLong, SplitModel splitModel) {
     if (maxLong == 0) {
       return String.valueOf(time);
     }
@@ -382,7 +405,7 @@ public class CountDownView extends LinearLayout {
     return !splitModel.isFormat() ? "" + time : (time > 9 ? "" + time : fill.toString() + time);
   }
 
-  private int getPlaces(int count) {
+  private int getPlaces(long count) {
     int place = 1;
     while (count / 10 >= 1) {
       place++;
