@@ -7,6 +7,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -76,9 +77,9 @@ public class CountDownView extends LinearLayout {
       } else if (attr == R.styleable.MyText_charPaddingButton) {
         bottomPadding = typeArray.getDimensionPixelSize(attr, -1);
       } else if (attr == R.styleable.MyText_charWidth) {
-        width = typeArray.getDimensionPixelSize(attr, -1);
+        width = typeArray.getLayoutDimension(R.styleable.MyText_charWidth, "char_width");
       } else if (attr == R.styleable.MyText_charHeight) {
-        height = typeArray.getDimensionPixelSize(attr, -1);
+        height = typeArray.getLayoutDimension(R.styleable.MyText_charHeight, "char_height");
       } else if (attr == R.styleable.MyText_charBackground) {
         textBackground = typeArray.getResourceId(attr, -1);
         isTextBackgroundDefault = false;
@@ -94,8 +95,10 @@ public class CountDownView extends LinearLayout {
 
   private TextView getTextView(SplitModel splitModel) {
     TextView textView = new TextView(getContext());
-    textView.setHeight(height);
-    textView.setWidth(width);
+    //textView.setHeight(height);
+    //textView.setWidth(width);
+    LayoutParams layoutParams = new LayoutParams(width, height);
+    textView.setLayoutParams(layoutParams);
     textView.setGravity(gravity);
     textView.setPadding(ispPaddingDefault ? padding : leftPadding,
         ispPaddingDefault ? padding : topPadding, ispPaddingDefault ? padding : rightPadding,
@@ -134,17 +137,19 @@ public class CountDownView extends LinearLayout {
     return this;
   }
 
-  public void addSplitModel(SplitModel splitModel) {
+  public CountDownView addSplitModel(SplitModel splitModel) {
     if (splitModel != null && mSplitModels != null) {
       mSplitModels.add(splitModel);
     }
     Collections.sort(mSplitModels, splitModelComparator);
+    return this;
   }
 
-  public void clearSplitModel() {
+  public CountDownView clearSplitModel() {
     if (mSplitModels != null) {
       mSplitModels.clear();
     }
+    return this;
   }
 
   /**
@@ -173,11 +178,12 @@ public class CountDownView extends LinearLayout {
    *
    * @param time 　倒计时时间
    */
-  public void setCountTime(int time) {
+  public CountDownView setCountTime(int time) {
     if (time < 0) {
       throw new IllegalArgumentException("count time must be positive number");
     }
     this.mCountTime = time;
+    return this;
   }
 
   /**

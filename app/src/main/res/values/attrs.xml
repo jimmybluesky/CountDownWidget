@@ -23,8 +23,22 @@
       <!-- center-->
       <flag name="center" value="0x11"/>
     </attr>
-    <attr name="charWidth" format="dimension|reference"/>
-    <attr name="charHeight" format="dimension|reference"/>
+    <attr name="charWidth" format="dimension">
+      <enum name="fill_parent" value="-1"/>
+      <!-- The view should be as big as its parent (minus padding).
+           Introduced in API Level 8. -->
+      <enum name="match_parent" value="-1"/>
+      <!-- The view should be only big enough to enclose its content (plus padding). -->
+      <enum name="wrap_content" value="-2"/>
+    </attr>
+    <attr name="charHeight" format="dimension">
+      <enum name="fill_parent" value="-1"/>
+      <!-- The view should be as big as its parent (minus padding).
+           Introduced in API Level 8. -->
+      <enum name="match_parent" value="-1"/>
+      <!-- The view should be only big enough to enclose its content (plus padding). -->
+      <enum name="wrap_content" value="-2"/>
+    </attr>
     <attr name="charBackground" format="reference"/>
     <attr name="splitBackground" format="reference"/>
   </declare-styleable>

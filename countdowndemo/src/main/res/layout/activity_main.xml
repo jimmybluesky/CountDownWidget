@@ -12,8 +12,8 @@
   <com.sharyuke.countdownview.CountDownView
       android:id="@+id/test"
       sharyuke:charBackground="@drawable/count_down_time_bg"
-      sharyuke:charWidth="20dp"
-      sharyuke:charHeight="30dp"
+      sharyuke:charWidth="wrap_content"
+      sharyuke:charHeight="40dp"
       sharyuke:textGravity="center"
       android:layout_width="match_parent"
       android:layout_height="48dip"

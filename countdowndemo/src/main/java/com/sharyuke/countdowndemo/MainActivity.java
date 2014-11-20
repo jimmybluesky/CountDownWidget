@@ -35,34 +35,34 @@ public class MainActivity extends ActionBarActivity {
     //两种效果一样的 setNormalFormat() 与上面的设置
 
     mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(86400)
-        .setSplitStr("天")
-        .setTextColor(Color.WHITE)
-        .setIsSplitText(true)
-        .build());
-    mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(1)
-        .setSplitStr("秒")
-        .setTextColor(Color.WHITE)
-        .setIsSplitText(false)
-        .setIsSplitStr(false)
-        .build());
-    mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(3600)
-        .setSplitStr("时")
-        .setTextColor(Color.WHITE)
-        .setIsSplitText(false)
-        .setIsSplitStr(true)
-        .build());
-    mcdv.addSplitModel(new SplitModel.Builder().setSplitNum(60)
-        .setSplitStr("分")
-        .setTextColor(Color.WHITE)
-        .setIsSplitText(true)
-        .build());
-    mcdv.setCountTime(1000);
-    mcdv.setOnCountOverListener(new CountDownView.CountOver() {
-      @Override
-      public void onCountOver() {
-        Toast.makeText(MainActivity.this, "回调了！！！", Toast.LENGTH_LONG).show();
-      }
-    });
+            .setSplitStr("天")
+            .setTextColor(Color.WHITE)
+            .setIsSplitText(true)
+            .build())
+        .addSplitModel(new SplitModel.Builder().setSplitNum(1)
+            .setSplitStr("秒")
+            .setTextColor(Color.WHITE)
+            .setIsSplitText(false)
+            .setIsSplitStr(false)
+            .build())
+        .addSplitModel(new SplitModel.Builder().setSplitNum(3600)
+            .setSplitStr("时")
+            .setTextColor(Color.WHITE)
+            .setIsSplitText(false)
+            .setIsSplitStr(true)
+            .build())
+        .addSplitModel(new SplitModel.Builder().setSplitNum(60)
+            .setSplitStr("分")
+            .setTextColor(Color.WHITE)
+            .setIsSplitText(true)
+            .build())
+        .setCountTime(1000)
+        .setOnCountOverListener(new CountDownView.CountOver() {
+          @Override
+          public void onCountOver() {
+            Toast.makeText(MainActivity.this, "回调了！！！", Toast.LENGTH_LONG).show();
+          }
+        });
     mcdv.startCount();
   }
 
