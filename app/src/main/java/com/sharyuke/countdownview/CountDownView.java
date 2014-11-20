@@ -206,11 +206,11 @@ public class CountDownView extends LinearLayout {
    * @param time 到时间总时间
    */
   public void setCountTime(String time) {
-    try {
-      this.mCountTime = str2int(time);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    //try {
+    this.mCountTime = str2long(time);
+    //} catch (Exception e) {
+    //  e.printStackTrace();
+    //}
   }
 
   private long getTime() {
@@ -259,9 +259,9 @@ public class CountDownView extends LinearLayout {
     }
   }
 
-  private int str2int(String time) {
+  private long str2long(String time) {
     checkIsValid(time);
-    return Integer.parseInt(time);
+    return Long.parseLong(time);
   }
 
   /**
@@ -345,18 +345,20 @@ public class CountDownView extends LinearLayout {
             if (mSplitModels.get(i).isSplitText()) {
               if (i == 0) {
                 if (maxFirstLength > timeStr.length()) {
-                  for (int j = timeStr.length() - 1; j < maxFirstLength; j++) {
+                  for (int j = 0; j < maxFirstLength - timeStr.length(); j++) {
                     setTextView(mSplitModels.get(i),
-                        FLAG_D + String.valueOf(i) + "-" + String.valueOf(timeStr.length() - j + 1),
-                        "0", position++);
+                        FLAG_D + String.valueOf(i) + "-" + String.valueOf(j), "0", position++);
                   }
                 } else {
                   maxFirstLength = timeStr.length();
                 }
               }
+
               for (int j = 0; j < timeStr.length(); j++) {
+                int index = i == 0 ? maxFirstLength - timeStr.length() + j : j;
+
                 setTextView(mSplitModels.get(i),
-                    FLAG_D + String.valueOf(i) + "-" + String.valueOf(timeStr.length() - j),
+                    FLAG_D + String.valueOf(i) + "-" + String.valueOf(index),
                     String.valueOf(timeStr.charAt(j)), position++);
               }
 
