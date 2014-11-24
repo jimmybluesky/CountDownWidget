@@ -6,8 +6,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,6 +24,7 @@ public class CountDownView extends LinearLayout {
   private static final String TAG = "CountDownView";
 
   private Map<String, TextView> tvs;
+  private Map<String, ImageView> imgs;
 
   /**
    * 计时状态
@@ -32,10 +33,12 @@ public class CountDownView extends LinearLayout {
 
   private CountOver mCountOver;
 
-  public static int DAY_COUNT = 86400;
-  public static int HOUR_COUNT = 3600;
-  public static int MINUTE_COUNT = 60;
-  public static int SECOND_COUNT = 1;
+  public final static int DAY_COUNT = 86400;
+  public final static int HOUR_COUNT = 3600;
+  public final static int MINUTE_COUNT = 60;
+  public final static int SECOND_COUNT = 1;
+
+  public final static int FLAG_NO_BACKGROUND = -1;
 
   /**
    * 1秒
@@ -92,6 +95,7 @@ public class CountDownView extends LinearLayout {
     splitModelComparator = new SplitModelComparator();
     mTimeHandler = new TimeHandler(this);
     tvs = new HashMap<String, TextView>();
+    imgs = new HashMap<String, ImageView>();
 
     final TypedArray typeArray = context.obtainStyledAttributes(attrs, R.styleable.MyText);
     final int N = typeArray.getIndexCount();
@@ -160,10 +164,18 @@ public class CountDownView extends LinearLayout {
     }
   }
 
-  private ImageView getImageView() {
-    ImageView imageView = new ImageView(getContext());
-    if (!isTextBackgroundDefault) {
-      imageView.setBackgroundResource(splitBackground);
+  private ImageView getImageView(String name, int index) {
+    ImageView imageView = imgs.get(name);
+    if (imageView == null) {
+      LayoutParams layoutParams =
+          new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+      imageView = new ImageView(getContext());
+      imgs.put(name, imageView);
+      imageView.setLayoutParams(layoutParams);
+      if (!isSplitBackgroundDefault) {
+        imageView.setImageResource(splitBackground);
+      }
+      addView(imageView, index);
     }
     return imageView;
   }
@@ -336,10 +348,11 @@ public class CountDownView extends LinearLayout {
                   timeStr.append(mSplitModels.get(i).getSplitStr()).toString(), position++);
             }
 
-            if (mSplitModels.get(i).getSplitPic() != 0) {
-              ImageView imageView = getImageView();
-              imageView.setImageResource(mSplitModels.get(i).getSplitPic());
-              addView(imageView);
+            if (!isSplitBackgroundDefault) {
+              ImageView imageView = getImageView(FLAG_A + String.valueOf(i), position++);
+              if (mSplitModels.get(i).getSplitPic() != 0) {
+                imageView.setImageResource(mSplitModels.get(i).getSplitPic());
+              }
             }
           } else {
             if (mSplitModels.get(i).isSplitText()) {
@@ -374,10 +387,13 @@ public class CountDownView extends LinearLayout {
                   time + mSplitModels.get(i).getSplitStr(), position++);
             }
 
-            if (mSplitModels.get(i).getSplitPic() != 0) {
-              ImageView imageView = new ImageView(getContext());
-              imageView.setImageResource(mSplitModels.get(i).getSplitPic());
-              addView(imageView);
+            if (!isSplitBackgroundDefault) {
+              ImageView imageView = getImageView(FLAG_A + String.valueOf(i), position++);
+              if (mSplitModels.get(i).getSplitPic() == FLAG_NO_BACKGROUND) {
+                imageView.setImageResource(mSplitModels.get(i).getSplitPic());
+              } else if (mSplitModels.get(i).getSplitPic() != 0) {
+                imageView.setImageResource(mSplitModels.get(i).getSplitPic());
+              }
             }
           }
           time = time % splitNum;
