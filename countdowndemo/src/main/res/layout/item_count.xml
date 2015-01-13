@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sharyuke="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+  <com.sharyuke.countdownview.CountDownView
+      android:id="@+id/count_view"
+      sharyuke:charBackground="@drawable/count_down_time_bg"
+      sharyuke:charWidth="wrap_content"
+      sharyuke:charHeight="40dp"
+      sharyuke:charPadding="10dp"
+      sharyuke:textColor="#ffffff"
+      sharyuke:textGravity="center"
+      android:layout_width="match_parent"
+      android:layout_height="48dip"/>
+
+</LinearLayout>

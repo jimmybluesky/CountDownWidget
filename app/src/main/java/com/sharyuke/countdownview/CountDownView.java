@@ -2,12 +2,12 @@ package com.sharyuke.countdownview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * @author Created by yuke on 11/17/14.
- * @version CountDownView yuke 0.0.6
+ * @version CountDownView yuke 0.0.7
  */
 public class CountDownView extends LinearLayout {
   private static final String TAG = "CountDownView";
@@ -45,7 +45,7 @@ public class CountDownView extends LinearLayout {
    */
   private final static int SECOND = 1000;
 
-  private ArrayList<SplitModel> mSplitModels = new ArrayList<SplitModel>();
+  private ArrayList<SplitModel> mSplitModels = new ArrayList<>();
   private SplitModelComparator splitModelComparator;
 
   private long mCountTime = 0;
@@ -61,6 +61,11 @@ public class CountDownView extends LinearLayout {
   private int textBackground = -1;
   private int splitBackground = -1;
   private int gravity;
+
+  /**
+   * 字体颜色
+   */
+  private int textColor;
   /**
    * 第一位最长长度
    */
@@ -88,14 +93,19 @@ public class CountDownView extends LinearLayout {
   private final static String FLAG_H = "H";
 
   /**
+   * 记录开始时间
+   */
+  private long mStartTimeMillis;
+
+  /**
    * 构造函数　一般用于xml布局
    */
   public CountDownView(Context context, AttributeSet attrs) {
     super(context, attrs);
     splitModelComparator = new SplitModelComparator();
     mTimeHandler = new TimeHandler(this);
-    tvs = new HashMap<String, TextView>();
-    imgs = new HashMap<String, ImageView>();
+    tvs = new HashMap<>();
+    imgs = new HashMap<>();
 
     final TypedArray typeArray = context.obtainStyledAttributes(attrs, R.styleable.MyText);
     final int N = typeArray.getIndexCount();
@@ -128,6 +138,8 @@ public class CountDownView extends LinearLayout {
         isSplitBackgroundDefault = false;
       } else if (attr == R.styleable.MyText_textGravity) {
         gravity = typeArray.getInt(attr, Gravity.LEFT | Gravity.TOP);
+      } else if (attr == R.styleable.MyText_textColor) {
+        textColor = typeArray.getColor(attr, Color.BLACK);
       }
     }
     typeArray.recycle();
@@ -155,6 +167,8 @@ public class CountDownView extends LinearLayout {
 
       if (splitModel.getTextColor() != 0) {
         textView.setTextColor(splitModel.getTextColor());
+      } else {
+        textView.setTextColor(textColor);
       }
 
       textView.setText(content);
@@ -181,6 +195,7 @@ public class CountDownView extends LinearLayout {
   }
 
   public CountDownView setNormalFormat() {
+    clearSplitModel();
     addSplitModel(new SplitModel.Builder().setSplitNum(DAY_COUNT).setSplitStr("天").build());
     addSplitModel(new SplitModel.Builder().setSplitNum(SECOND_COUNT)
         .setSplitStr("秒")
@@ -218,22 +233,22 @@ public class CountDownView extends LinearLayout {
    * @param time 到时间总时间
    */
   public void setCountTime(String time) {
-    //try {
-    this.mCountTime = str2long(time);
-    //} catch (Exception e) {
-    //  e.printStackTrace();
-    //}
+    setCountTime(str2long(time));
   }
 
   private long getTime() {
-    if (mCountTime > 0) {
-      return mCountTime--;
+
+    // 剩余时间
+    long remainTime = (mStartTimeMillis + mCountTime - System.currentTimeMillis()) / 1000;
+
+    if (remainTime > 0) {
+      return remainTime;
     } else {
       stopCount();
       if (mCountOver != null) {
         mCountOver.onCountOver();
       }
-      return mCountTime;
+      return remainTime;
     }
   }
 
@@ -242,11 +257,11 @@ public class CountDownView extends LinearLayout {
    *
    * @param time 　倒计时时间
    */
-  public CountDownView setCountTime(int time) {
+  public CountDownView setCountTime(long time) {
     if (time < 0) {
       throw new IllegalArgumentException("count time must be positive number");
     }
-    this.mCountTime = time;
+    this.mCountTime = time * 1000;
     return this;
   }
 
@@ -280,9 +295,10 @@ public class CountDownView extends LinearLayout {
    * 开始倒计时
    */
   public void startCount() {
+    mStartTimeMillis = System.currentTimeMillis();
     if (mTimeHandler != null) {
       mTimeHandler.removeMessages(STATUS_COUNTING);
-      mTimeHandler.sendEmptyMessageDelayed(STATUS_COUNTING, 0);
+      mTimeHandler.sendEmptyMessage(STATUS_COUNTING);
     }
   }
 
@@ -330,20 +346,29 @@ public class CountDownView extends LinearLayout {
 
       for (int i = 0; i < mSplitModels.size(); i++) {
         StringBuilder timeStr = new StringBuilder();
+
         int splitNum = mSplitModels.get(i).getSplitNum();
+
         if (splitNum > 0) {
+
           timeStr.append(formatTime(time / splitNum, i == 0 ? 0
               : mSplitModels.get(i - 1).getSplitNum() / (i == mSplitModels.size() - 1 ? 1
                   : mSplitModels.get(i).getSplitNum()), mSplitModels.get(i)));
 
+          // 如果数字要格式化显示
           if (!mSplitModels.get(i).isFormat()) {
 
+            // 如果数字和单位要分开
             if (mSplitModels.get(i).isSplitStr()) {
+
               setTextView(mSplitModels.get(i), FLAG_A + String.valueOf(i), timeStr.toString(),
                   position++);
+
               setTextView(mSplitModels.get(i), FLAG_B + String.valueOf(i),
                   mSplitModels.get(i).getSplitStr(), position++);
             } else {
+
+              // 数字和单位不分开
               setTextView(mSplitModels.get(i), FLAG_C + String.valueOf(i),
                   timeStr.append(mSplitModels.get(i).getSplitStr()).toString(), position++);
             }
@@ -355,6 +380,8 @@ public class CountDownView extends LinearLayout {
               }
             }
           } else {
+
+            // 如果要分开每个数字
             if (mSplitModels.get(i).isSplitText()) {
               if (i == 0) {
                 if (maxFirstLength > timeStr.length()) {
@@ -378,13 +405,21 @@ public class CountDownView extends LinearLayout {
               setTextView(mSplitModels.get(i), FLAG_E + String.valueOf(i),
                   mSplitModels.get(i).getSplitStr(), position++);
             } else if (mSplitModels.get(i).isSplitStr()) {
+
+              // 分开计数器和单位
+
+              // 设置单位
               setTextView(mSplitModels.get(i), FLAG_F + String.valueOf(i),
                   mSplitModels.get(i).getSplitStr(), position++);
-              setTextView(mSplitModels.get(i), FLAG_G + String.valueOf(i), String.valueOf(time),
+
+              // 设置时间
+              setTextView(mSplitModels.get(i), FLAG_G + String.valueOf(i), timeStr.toString(),
                   position++);
             } else {
+
+              // 计数和单位不分开
               setTextView(mSplitModels.get(i), FLAG_H + String.valueOf(i),
-                  time + mSplitModels.get(i).getSplitStr(), position++);
+                  timeStr.toString() + mSplitModels.get(i).getSplitStr(), position++);
             }
 
             if (!isSplitBackgroundDefault) {
@@ -420,14 +455,13 @@ public class CountDownView extends LinearLayout {
     for (int i = 0; i < getPlaces(maxLong) - getPlaces(time); i++) {
       fill.append("0");
     }
-    return !splitModel.isFormat() ? "" + time : (time > 9 ? "" + time : fill.toString() + time);
+    return !splitModel.isFormat() ? "" + time : fill.toString() + time;
   }
 
   private int getPlaces(long count) {
     int place = 1;
-    while (count / 10 >= 1) {
+    while ((count /= 10) >= 1) {
       place++;
-      count /= 10;
     }
     return place;
   }

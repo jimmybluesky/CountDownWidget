@@ -1,6 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:sharyuke="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -9,46 +8,11 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-  <com.sharyuke.countdownview.CountDownView
-      android:id="@+id/test"
-      sharyuke:charBackground="@drawable/count_down_time_bg"
-      sharyuke:charWidth="wrap_content"
-      sharyuke:charHeight="40dp"
-      sharyuke:charPadding="10dp"
-      sharyuke:textGravity="center"
-      sharyuke:splitBackground="@drawable/ic_launcher"
+  <ListView
+      android:id="@+id/list"
       android:layout_width="match_parent"
-      android:layout_height="48dip"
-      />
+      android:layout_height="match_parent">
 
-  <EditText
-      android:id="@+id/count"
-      android:gravity="center_horizontal"
-      android:layout_marginTop="100dp"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"/>
-
-  <LinearLayout
-      android:layout_marginTop="150dp"
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
-      android:gravity="center"
-      android:layout_height="wrap_content">
-
-    <Button
-        android:id="@+id/start"
-        android:text="开始"
-        android:onClick="click"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    <Button
-        android:id="@+id/stop"
-        android:text="结束"
-        android:onClick="click"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-  </LinearLayout>
-
+  </ListView>
 
 </RelativeLayout>

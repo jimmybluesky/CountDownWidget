@@ -5,13 +5,45 @@ package com.sharyuke.countdownview;
  * Created by sharyuke on 11/19/14.
  */
 public class SplitModel {
+
+  /**
+   * 单位进制
+   */
   private int splitNum;
+
+  /**
+   * 单位
+   */
   private String splitStr;
+
+  /**
+   * 分割背景
+   */
   private int splitBackground;
+
+  /**
+   * 分割的图片
+   */
   private int splitPic;
+
+  /**
+   * 字体颜色
+   */
   private int textColor;
+
+  /**
+   * 是否分开数字和单位
+   */
   private boolean isSplitStr;
+
+  /**
+   * 是否格式化数组显示 例如 1 格式化成 01
+   */
   private boolean isFormat;
+
+  /**
+   * 是否分开每个阿拉伯数字
+   */
   private boolean isSplitText;
 
   public SplitModel(int splitNum, String splitStr, int splitBackground, int splitPic, int textColor,
